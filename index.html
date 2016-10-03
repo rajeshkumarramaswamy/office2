@@ -1,0 +1,355 @@
+{% load static from staticfiles %}
+{#{% load cache %}#}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Dashboard</title>
+
+    <!-- Bootstrap core CSS -->
+    <!--<link href="/static/css/custom.css" rel="stylesheet">-->
+    <!--<link src="/static/css/navbar-fixed-top.css" rel="stylesheet">-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.7/css/bootstrap-dialog.min.css"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.7/js/bootstrap-dialog.min.js"></script>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+
+  <style>
+      .container {
+          padding-top: 5px;
+          padding-bottom: 5px;
+          float: left;
+      }
+      #parent{
+          float: left;
+          width: 10%;
+          text-align: center;
+          border-color: white ;
+          border-radius: 25px;
+          border-style: groove;
+      }
+      .row{
+          width: 20%;
+      }
+      #form1{
+          border-style: groove;
+          background-color: #fcfcfe;
+          border-radius: 25px;
+      }
+
+  </style>
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+  <!--nav class="navbar navbar-default navbar-fixed-top">-->
+      <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        <a class="navbar-brand" href="{% url 'home' %}"><strong>Netenrich Nerve Center</strong></a>
+      </div>
+      <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav bmenu">
+                <li><a href="{% url 'home' %}">About</a></li>
+                <li><a href="{% url 'react' %}">React</a></li>
+                <li><a href="{% url 'layout' %}">Dashboard</a></li>
+            </ul>
+      </div>
+  <!--/.nav-collapse -->
+
+
+    <div class="sidebar-module" id="parent"><u><strong>Filters</strong></u>
+    <div id="list">
+        {% for key in sales_records %}
+            <div class="namefil" id="{{key}}"><a class="namelink" href="?filtername={{key}}" onclick="loadfilter()">{{ key }} </a></div>
+        {% endfor %}
+    </div>
+    </div>
+
+
+{#    '''Navigation bar for ProductLines'''   #}
+
+  <div class="container" id="form1">
+      <form class="form-inline">
+          <div class="form-group">
+                <label class="col-xs-11 col-md-8">Productlines</label>
+                <select class="col-xs-11 col-md-8" data-live-search="true" id="json-one">
+                    <option>--Select--</option>
+                    {% for key in productlines_data %}
+                        <option value="{{ key }}">{{ key }}</option>
+                    {% endfor %}
+                </select>
+          </div>
+      {#    '''Navigation bar for Product'''   #}
+          <div class="form-group">
+                <label class="col-xs-11 col-md-8">Product</label>
+                <select class="col-xs-11 col-md-8" data-live-search="true" id="json-two">
+                    <option>--Select--</option>
+                    {% for key in product_data %}
+                        <option value="{{ key }}">{{ key }}</option>
+                    {% endfor %}
+                </select>
+          </div>
+      </form>
+  {# CheckBox #}
+    <br>
+    <div class="container">
+    <div class="row">
+        <label class="checkbox-inline" id="select3">
+            <input type="checkbox" id="orderdate" /> Order date
+        </label>
+        <label class="checkbox-inline" id="select4">
+            <input type="checkbox" id="payment" /> Payment date
+        </label>
+    </div>
+  </div>
+  {# DateField #}
+    <br>
+    <div class="form-inline p-l-3">
+        <input type="date" id="dp1" min="2003-01-06" max="2005-05-31" aria-label="From" hidden />
+        <input type="date" id="dp2" min="2003-01-06" max="2005-05-31" placeholder="To" hidden />
+        <input type="date" id="dp3" hidden />
+    </div>
+
+  {# Multi Select Employees List #}
+    <br>
+    <div class="container">
+    <div class="col-lg-11" id="multiselect">
+    <select multiple class="col-xs-2" data-live-search="true" id="json-three">
+{#        <select id="json-three" multiple>#}
+            <option>--Select--</option>
+            {% for key in emp_records_output %}
+                <option value="{{ key }}">{{ key }}</option>
+            {% endfor %}
+    </select>
+    </div>
+    </div>
+
+  <div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog">
+
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Filters</h4>
+        </div>
+        <div class="modal-body">
+          <div id="list">
+              {% for key in sales_records %}
+                  <div id="{{key}}"><input type="checkbox" />{{ key }} </div>
+              {% endfor %}
+          </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default btn btn-danger" data-dismiss="modal">Delete Filter</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  {# Alter Buttons #}
+    <div class="container">
+    <button class="btn btn-default btn btn-primary" id="but">Submit</button>
+    <button class="btn btn-default btn btn-success" id="savefilter" onClick=save_filter()>Save Filter</button>
+    <button class="btn btn-default btn btn-danger" id="delfilter">Delete Filter</button>
+    </div>
+  </div>
+    <br><br>
+  <div id="re"></div>
+
+    <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore.js"></script>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type='text-jquery-tmpl' id="t_tmpl">
+        {% include "table.tmpl" %}
+    </script>
+
+  <script type='text/javascript'>
+
+      {#                        Dynamic Dropdowns                      #}
+
+	/*var order_date_vs_orders = {{ order_date_vs_orders | safe }};*/
+    $(function() {
+	var json1;
+	var json2;
+	var json3;
+        $('#json-one').change(function () {
+            var mydict = {{ prod_and_lines | safe }};
+            var $jsonone = $('#json-one').val();
+	    json1 = $('#json-one').val();
+            vals = mydict[$jsonone];
+            var $jsontwo = $("#json-two");
+            $jsontwo.empty();
+            $jsontwo.append("<option>--Select--</option>");
+            $.each(vals, function (index, value) {
+                $jsontwo.append("<option>" + value + "</option>");
+            });
+        });
+                $('#json-two').change(function () {
+                    var product = $('#json-two').val();
+                    json2 = $('#json-two').val();
+                    console.log(product);
+                });
+                var from;
+                $('#dp1').change(function () {
+                    from = $(this).val();
+                    console.log(from);
+                });
+                var to;
+                $('#dp2').change(function () {
+                    to = $(this).val();
+                    console.log(to);
+                });
+                $('#dp3').change(function () {
+                    var payment = $(this).val();
+                    console.log(payment);
+                });
+                $('#json-three').change(function () {
+                    var salesrep = $('#json-three').val();
+                    json3 = $('#json-three').val();
+                    console.log(salesrep);
+                });
+        {#                            Form Validations                       #}
+
+        var tournamen_blk = $('#t_tmpl').text();
+
+                $("#but").click(function () {
+                    if($('#json-one').val() == '--Select--' || $("#json-two").val() == '--Select--' || $("#json-three").val() == '--Select--' || from == '' || to == '' || from > to){
+                        alert("Please select all the fields.");
+                        return false;
+                    }
+                    else{                            {#             Ajax call for retrieving table data              #}
+                        var x = _.template(tournamen_blk);
+                        $.get('/display/', {
+                                    'json1': JSON.stringify(json1),
+                                    'json2': JSON.stringify(json2),
+                                    'json3': JSON.stringify(json3),
+                                    'from': JSON.stringify(from),
+                                    'to' : JSON.stringify(to),
+                                    }, function(res) {
+                            $('.loading').addClass('hide');
+                            console.log(res);
+                            $("#re").html(x({'res' : res}));
+                            $("#details").dataTable();
+                        });
+                    }
+                });
+
+        {#                         Code to select single checkbox                      #}
+
+                $('input[type="checkbox"]').on('change', function () {
+                    $('input[type="checkbox"]').not(this).prop('checked', false);
+                });
+                $('#orderdate').click(function () {
+                    $("#dp1").toggle(this.checked);
+                    $("#dp2").toggle(this.checked);
+                });
+                $('#payment').click(function () {
+                    $("#dp3").toggle(this.checked);
+                    function hideElem() {
+                        document.getElementById("dp1").style.visibility = "hidden";
+                    }
+                    function hideElem() {
+                        document.getElementById("dp2").style.visibility = "hidden";
+                    }
+                $('#orderdate').click(function () {
+                    function showElem() {
+                        document.getElementById("dp1").style.visibility = "visible";
+                    }
+                    function showElem() {
+                        document.getElementById("dp2").style.visibility = "visible";
+                    }
+                });
+                });
+
+  });
+      {#                   Save Filter button                 #}
+function save_filter() {
+            json1 = $('#json-one').val(),
+            json2 = $('#json-two').val(),
+            json3 = $('#json-three').val()
+    if ($('#json-one').val() === '--Select--' || $("#json-two").val() === '--Select--' || $("#json-three").val() === '--Select--') {
+        alert("Please select required fields to save.");
+    } else {
+        BootstrapDialog.show({
+            title: 'Saving Filter as',
+            message: json3,
+            buttons: [{
+                label: 'Close',
+                action: function(dialogItself) {
+                    dialogItself.close();
+                }
+                }]
+        });
+var filternameas = json3;
+        if (filternameas != null) {
+            $('#parent').append('<div class="namefil" id="' + filternameas + '"><a href="?filtername='+ filternameas +'">' + filternameas + '</a></div>');
+        }
+        $.get('/savefilter/', {
+                                    'json1': JSON.stringify(json1),
+                                    'json2': JSON.stringify(json2),
+                                    'json3': JSON.stringify(json3),
+                                    }, function(res) {
+                $('.loading').addClass('hide');
+                console.log(res);
+        });
+
+    }
+    {% comment %}if (filter != null){
+                                $('#fil').append($('<li id="filter"><a href="#">' + filter + '</a></li>'));
+
+                        }{% endcomment %}
+    /*($('#json-one>option:eq(json1)').attr('selected', true) || $('#json-two>option:eq(json2)').attr('selected', true) ||$('#json-three>option:eq(json1)').attr('selected', true))*/
+}
+
+      {#                Delete Filter Button                #}
+
+
+function loadfilter() {
+    $('body').on('ready', 'a.namelink', function () {
+        $("#json-three").filter(function (json3) {
+            console.log(filternameas);
+            if ($(this).val() == filternameas) {
+                $('#json-three').prop('selected', true);
+            }
+            return true;
+        })
+    });
+}
+$(document).ready(function(){
+    $("#delfilter").click(function(){
+        $("#myModal").modal('show');
+    });
+    $.get('/deletefilter/', {
+                                    'json1': JSON.stringify(json1),
+                                    'json2': JSON.stringify(json2),
+                                    'json3': JSON.stringify(json3),
+                                    }, function(res) {
+                $('.loading').addClass('hide');
+                console.log(res);
+    });
+});
+  </script>
+{% block content %} {% endblock %}
+{% block footer %}{% endblock %}
+</body>
+</html>
